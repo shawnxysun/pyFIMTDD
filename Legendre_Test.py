@@ -7,7 +7,8 @@ from scipy.special import legendre
 
 
 
-def test_legendre() -> None:
+# def test_legendre() -> None:
+def test_legendre():
     """
     Plots the given legendre polynomial
 
@@ -28,7 +29,8 @@ def test_legendre() -> None:
 
     return
 
-def _generate_legendre_polynomial(degree:int) -> Legendre:
+# def _generate_legendre_polynomial(degree:int) -> Legendre:
+def _generate_legendre_polynomial(degree):
     """
     Generate a legendre polynom
 
@@ -37,7 +39,8 @@ def _generate_legendre_polynomial(degree:int) -> Legendre:
     """
     return legendre(degree) * np.random.uniform(-1,1,size=degree+1)
 
-def _generate_dataset_without_conceptdrift_from_legendre_polynom(degree:int,sample_size:int) -> (np.array,np.array):
+# def _generate_dataset_without_conceptdrift_from_legendre_polynom(degree:int,sample_size:int) -> (np.array,np.array):
+def _generate_dataset_without_conceptdrift_from_legendre_polynom(degree,sample_size):
     """
     Generate a dataset from a legendre polynom without conceptdrift
 
@@ -48,7 +51,8 @@ def _generate_dataset_without_conceptdrift_from_legendre_polynom(degree:int,samp
     x = np.random.uniform(low=-1.0,high=1.0,size=sample_size)
     return x,poly(x),poly(x)
 
-def _add_uniform_noise(dataset:np.array,noise_level:float) -> (np.array,np.array):
+# def _add_uniform_noise(dataset:np.array,noise_level:float) -> (np.array,np.array):
+def _add_uniform_noise(dataset,noise_level):
     """
     Adds noise to a dataset
 
@@ -63,7 +67,8 @@ def _add_uniform_noise(dataset:np.array,noise_level:float) -> (np.array,np.array
 
     return x,y,y_without_noise
 
-def _generate_dataset(degree:int,sample_size:int,noise_level:float) -> (np.array,np.array):
+# def _generate_dataset(degree:int,sample_size:int,noise_level:float) -> (np.array,np.array):
+def _generate_dataset(degree,sample_size,noise_level):
     """
     provide a complete dataset based on legendre polynomials
 
@@ -74,7 +79,8 @@ def _generate_dataset(degree:int,sample_size:int,noise_level:float) -> (np.array
     """
     return _add_uniform_noise(_generate_dataset_without_conceptdrift_from_legendre_polynom(degree,sample_size),noise_level)
 
-def data_provider(degree:list,noise_level:list,sample_size_per_subset,number_of_drifts:list) -> (np.array,np.array):
+# def data_provider(degree:list,noise_level:list,sample_size_per_subset,number_of_drifts:list) -> (np.array,np.array):
+def data_provider(degree,noise_level,sample_size_per_subset,number_of_drifts):
     """
     provides data points for the FIMTDD algorithm list length of degree has to be the same size as the sample size per subset, same goes for the noise level
 

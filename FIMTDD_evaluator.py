@@ -52,7 +52,7 @@ def get_Kiel_data():
     data = np.array(new_data)
     simulationSteps = len(data)
     return data
-    s#elf.bar = progressbar.ProgressBar(max_value=simulationSteps)
+    # s#elf.bar = progressbar.ProgressBar(max_value=simulationSteps)
 
 def Kiel_Test(paramlist,show,val):
     fimtgd=FIMTGD(gamma=paramlist[0], n_min = paramlist[1], alpha=paramlist[2], threshold=paramlist[3], learn=paramlist[4])
@@ -620,7 +620,8 @@ if __name__ == '__main__':
     result_list = [None]*numberoftests
     results = np.zeros(numberoftests)
     c = 0
-    bar = pb.ProgressBar(max_value=numberoftests)
+    # bar = pb.ProgressBar(max_value=numberoftests)
+    bar = pb.ProgressBar(maxval=numberoftests)
     if(False): #for non pool test, set this to true
         for paramlist in itertools.product(gammalist, n_minlist, alphalist, thresholdlist, learnlist):
             paramlist = list(paramlist)
