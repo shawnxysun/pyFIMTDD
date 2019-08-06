@@ -8,20 +8,27 @@ from umcFIMTDD_LS import FIMTDD as gFIMTLS
 import datetime
 import os
 
-# import sys
-# sys.setrecursionlimit(100000)
+import sys
+sys.setrecursionlimit(100000)
 
-def get_data():
+def parse_training_data():
     print("setting up data...")
     data = list()
+    hasHeader = True
     
-    with open(dir_path + '/' +training_file_name, 'r') as fp:
+    with open(training_file_path + '/' +training_file_name, 'r') as fp:
         # w_day = 1.0
         # prev_day = -1.0
         # prev_time = 0.0
         r = csv.reader(fp, delimiter=',')
         data = list()
         for i in r:
+
+            # skip header
+            if hasHeader == True:
+                hasHeader = False
+                continue
+
             row = list()
             for j in i:
                 row.append(float(j))
@@ -29,21 +36,22 @@ def get_data():
                 continue
             data.append(row)
     data = np.array(data)
-    new_data = list()
     print('training_data length: ', len(data))
-    simulationSteps = len(data) - 100
-    print("data loaded in RAM")
-    # print simulationSteps
-    for idx in range(simulationSteps):
-        new_data.append(np.hstack((data[idx][5], data[idx + 48][5], data[idx + 72][5],
-                                   data[idx + 84][5], data[idx + 90][5], data[idx + 93][5],
-                                   data[idx + 94][5], data[idx + 95][5], data[idx + 96][3:])))
-    print("data prepared for processing")
-    data = np.array(new_data)
-    simulationSteps = len(data)
+
+    # new_data = list()
+    # simulationSteps = len(data) - 100
+    # print("data loaded in RAM")
+    # # print simulationSteps
+    # for idx in range(simulationSteps):
+    #     new_data.append(np.hstack((data[idx][5], data[idx + 48][5], data[idx + 72][5],
+    #                                data[idx + 84][5], data[idx + 90][5], data[idx + 93][5],
+    #                                data[idx + 94][5], data[idx + 95][5], data[idx + 96][3:])))
+    # print("data prepared for processing")
+    # data = np.array(new_data)
+    # simulationSteps = len(data)
     return data
 
-def Kiel_Test(paramlist,show):
+def build_tree(paramlist):
     fimtgd=FIMTGD(gamma=paramlist[0], n_min = paramlist[1], alpha=paramlist[2], threshold=paramlist[3], learn=paramlist[4])
     
     cumLossgd = []
@@ -55,8 +63,8 @@ def Kiel_Test(paramlist,show):
             c += 1
             print(str(c)+'/'+str(training_data_length))
 
-            input = training_data[i][8:10]
-            target = training_data[i][10]
+            target = training_data[i][0]
+            input = training_data[i][1:]
 
             if i > -1:
                 cumLossgd.append(np.fabs(target - fimtgd.eval_and_learn(np.array(input), target)))
@@ -111,8 +119,9 @@ def traverse_tree(root):
     
 def print_tree(tree, average_loss):
     print('printing tree...')
+    current_directory = os.path.dirname(os.path.realpath(__file__))
     timestamp = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
-    tree_file_name = dir_path + '/tree_' + training_file_name + '_'+ str(timestamp) + '.txt'
+    tree_file_name = current_directory + '/tree_' + training_file_name + '_'+ str(timestamp) + '.txt'
 
     global file_writer
     file_writer = open(tree_file_name,'w')
@@ -132,17 +141,27 @@ def print_tree(tree, average_loss):
         
 if __name__ == '__main__':
     global training_file_name
-    training_file_name = 'KielClean.csv'
+    # training_file_name = 'KielClean.csv'
+    # training_file_name = 'sportlogiq_data_pass_2019_07_22_08_54_17_small.csv'
+    training_file_name = 'sportlogiq_data_pass_2019_07_22_08_54_17.csv'
     
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    training_data = get_data()
+    # training_file_path = os.path.dirname(os.path.realpath(__file__))
+    training_file_path = '/cs/oschulte/xiangyus/csv_training_files'
+    training_data = parse_training_data()
 
-    # training_data_length = 3000
-    # training_data_length = 100000
     training_data_length = len(training_data)
+    # training_data_length = 1000
+    # training_data_length = 100000
+    
+    # [gamma, n_min, alpha, threshold, learn]
+    # :param gamma:       hoefding-bound value
+    # :param n_min:       minimum intervall for split and alt-tree replacement
+    # :param alpha:       used for change detection
+    # :param threshold:   threshold for change detection
+    # :param learn:   learning rate
+    paramlist = [0.25, 10, 0.001, 10, 0.001]
 
-    paramlist = [0.25, 10, 0.001, 10, 0.005, 2]
-    results = Kiel_Test(paramlist,False)
+    results = build_tree(paramlist)
 
     average_loss = results[1]
     
