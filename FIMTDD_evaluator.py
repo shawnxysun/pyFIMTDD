@@ -207,8 +207,9 @@ def legendre_test(paramlist,show,val):
             #plt.show()
             f.clear()
         #print(i)
-        #print(fimtgd.count_leaves())
-        #print(fimtgd.count_nodes())
+        # print("legendre_test FIMTDD_LS: ", fimtls)
+        # print('FIMTDD_LS count_leaves: ', fimtls.count_leaves())
+        # print('FIMTDD_LS count_nodes: ', fimtls.count_nodes())
         return [cumLossgd,cumLossls,cumLossgls,val,paramlist]
 
 def sine_test(paramlist,show,val):
@@ -623,18 +624,21 @@ if __name__ == '__main__':
     # bar = pb.ProgressBar(max_value=numberoftests)
     bar = pb.ProgressBar(maxval=numberoftests)
     if(False): #for non pool test, set this to true
+    # if(True): #for non pool test, set this to true
         for paramlist in itertools.product(gammalist, n_minlist, alphalist, thresholdlist, learnlist):
             paramlist = list(paramlist)
             idx = learnlist.index(paramlist[-1])
             paramlist.append(greedlist[idx])
-            line_test(paramlist,False,12)
+            # line_test(paramlist,False,12)
+            Kiel_Test(paramlist,False,12)
             c=c+1
     else:
         for paramlist in itertools.product(gammalist, n_minlist, alphalist, thresholdlist, learnlist):
             paramlist = list(paramlist)
             idx = learnlist.index(paramlist[-1])
             paramlist.append(greedlist[idx])
-            pool.apply_async(func=legendre_test,args=(paramlist,False,c),callback=callback_func)
+            # pool.apply_async(func=legendre_test,args=(paramlist,False,c),callback=callback_func)
+            pool.apply_async(func=Kiel_Test,args=(paramlist,False,c),callback=callback_func)
             #callback_func(legendre_test(paramlist,False,c))
             c = c+1
     pool.close()
@@ -648,19 +652,19 @@ if __name__ == '__main__':
     with open('results.txt','a+') as fp:
         fp.write(s0+'\n'+s1+'\n'+s2+'\n'+s3+'\n\n')
     print(s0+'\n'+s1+'\n'+s2+'\n'+s3+'\n\n')
-    f=plt.figure()
-    plt.plot(c_loss_gd[1:], label="FIMTGD")
-    f.hold(True)
-    plt.plot(c_loss_ls[1:], label="FIMTLS")
-    f.hold(True)
-    plt.plot(c_loss_gls[1:], label="umcFIMTLS")
-       #avglossgd=np.array([cumLossgd[-1]/len(cumLossgd)]*len(cumLossgd))
-        #plt.plot(avglossgd,label="Average GD Loss")
-        #plt.plot([cumLossls[-1]/len(cumLossls)]*len(cumLossls), label="Average Filter Loss")
-    plt.legend()
-    plt.savefig('optimal_performance.png')
-    plt.show()
-    f.clear()
+    # f=plt.figure()
+    # plt.plot(c_loss_gd[1:], label="FIMTGD")
+    # f.hold(True)
+    # plt.plot(c_loss_ls[1:], label="FIMTLS")
+    # f.hold(True)
+    # plt.plot(c_loss_gls[1:], label="umcFIMTLS")
+    #    #avglossgd=np.array([cumLossgd[-1]/len(cumLossgd)]*len(cumLossgd))
+    #     #plt.plot(avglossgd,label="Average GD Loss")
+    #     #plt.plot([cumLossls[-1]/len(cumLossls)]*len(cumLossls), label="Average Filter Loss")
+    # plt.legend()
+    # plt.savefig('optimal_performance.png')
+    # plt.show()
+    # f.clear()
 
 
     #abalone_test(minparamgd,True,0)
