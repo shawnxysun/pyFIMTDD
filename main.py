@@ -1,32 +1,24 @@
 import csv
 import numpy as np
 
-from mpl_toolkits.mplot3d import axes3d
-
-#from pyFIMTDD import FIMTDD as FIMTGD
-#from Greedy_FIMTDD_LS import FIMTDD as gFIMTLS
-# from umcFIMTDD_LS import FIMTDD as gFIMTLS
 from pyFIMTDD import FIMTDD as FIMTGD
-# from FIMTDD_LS import FIMTDD as FIMTLS
-import matplotlib.pyplot as plt
-import itertools
-import time
-from multiprocessing import Pool
-import multiprocessing as mp
-import progressbar as pb
-import os
-import sys
-from DataGenerator import *
-from Legendre_Test import data_provider
-sys.setrecursionlimit(100000)
+from FIMTDD_LS import FIMTDD as FIMTLS
+from umcFIMTDD_LS import FIMTDD as gFIMTLS
 
-def get_Kiel_data():
+import datetime
+import os
+
+# import sys
+# sys.setrecursionlimit(100000)
+
+def get_data():
     print("setting up data...")
     data = list()
-    with open('KielClean.csv', 'r') as fp:
-        w_day = 1.0
-        prev_day = -1.0
-        prev_time = 0.0
+    
+    with open(dir_path + '/' +training_file_name, 'r') as fp:
+        # w_day = 1.0
+        # prev_day = -1.0
+        # prev_time = 0.0
         r = csv.reader(fp, delimiter=',')
         data = list()
         for i in r:
@@ -38,7 +30,7 @@ def get_Kiel_data():
             data.append(row)
     data = np.array(data)
     new_data = list()
-    print('len(data): ', len(data))
+    print('training_data length: ', len(data))
     simulationSteps = len(data) - 100
     print("data loaded in RAM")
     # print simulationSteps
@@ -50,70 +42,111 @@ def get_Kiel_data():
     data = np.array(new_data)
     simulationSteps = len(data)
     return data
-    # s#elf.bar = progressbar.ProgressBar(max_value=simulationSteps)
 
-def Kiel_Test(paramlist,show,val):
+def Kiel_Test(paramlist,show):
     fimtgd=FIMTGD(gamma=paramlist[0], n_min = paramlist[1], alpha=paramlist[2], threshold=paramlist[3], learn=paramlist[4])
-    # fimtls=FIMTLS(gamma=paramlist[0], n_min = paramlist[1], alpha=paramlist[2], threshold=paramlist[3], learn=paramlist[4])
-    # gfimtls=gFIMTLS(gamma=paramlist[0], n_min = paramlist[1], alpha=paramlist[2], threshold=paramlist[3], learn=paramlist[5])
-    cumLossgd  =[0]
-    # cumLossls  =[0]
-    # cumLossgls =[0]
+    
+    cumLossgd = []
 
     if True:
-        data = get_Kiel_data()
         c = 0
 
-        # data_length = 100000
-        data_length = 10
-        # data_length = len(data)
-
-        for i in range(data_length):
+        for i in range(training_data_length):
             c += 1
-            print(str(c)+'/'+str(data_length))
-            input = data[i][8:10]
-            #target = data[1][i] + (np.random.uniform() - 0.5) * 0.2
-            target = data[i][10]
+            print(str(c)+'/'+str(training_data_length))
+
+            input = training_data[i][8:10]
+            target = training_data[i][10]
 
             if i > -1:
-                cumLossgd.append(cumLossgd[-1] + np.fabs(target - fimtgd.eval_and_learn(np.array(input), target)))
-                # cumLossls.append(cumLossls[-1] + np.fabs(target - fimtls.eval_and_learn(np.array(input), target)))
-                # cumLossgls.append(cumLossgls[-1] + np.fabs(target - gfimtls.eval_and_learn(np.array(input), target)))
+                cumLossgd.append(np.fabs(target - fimtgd.eval_and_learn(np.array(input), target)))
             else:
                 #warm start
                 fimtgd.eval_and_learn(np.array(input), target)
-                # fimtls.eval_and_learn(np.array(input), target)
-                # gfimtls.eval_and_learn(np.array(input), target)
+
             #plt.scatter(x=x,y=y)
             #plt.show()
-            if show:
-                f=plt.figure()
-                plt.plot(cumLossgd[1:], label="Gradient Descent Loss")
-                f.hold(True)
-                # plt.plot(cumLossls[1:], label="Filter Loss")
-               #avglossgd=np.array([cumLossgd[-1]/len(cumLossgd)]*len(cumLossgd))
-                #plt.plot(avglossgd,label="Average GD Loss")
-                #plt.plot([cumLossls[-1]/len(cumLossls)]*len(cumLossls), label="Average Filter Loss")
-                # plt.title("CumLoss Ratio:"+str(min(cumLossgd[-1],cumLossls[-1])/max(cumLossgd[-1],cumLossls[-1])))
-                plt.legend()
-                figname="g"+str(paramlist[0])+"_nmin"+str(paramlist[1])+"_al"+str(paramlist[2])+"_thr"+str(paramlist[3])\
-                        + "_lr"+str(paramlist[4])+".png"
-                plt.savefig(figname)
-                #plt.show()
-                f.clear()
-            #print(i)
-            #print(fimtgd.count_leaves())
-            #print(fimtgd.count_nodes())
-            # print(fimtgd)
-        # return [cumLossgd,cumLossls,cumLossgls,val,paramlist]
-        return [cumLossgd,val,paramlist]
+            # if show:
+            #     f=plt.figure()
+            #     plt.plot(cumLossgd[1:], label="Gradient Descent Loss")
+            #     f.hold(True)
+            #     # plt.plot(cumLossls[1:], label="Filter Loss")
+            #    #avglossgd=np.array([cumLossgd[-1]/len(cumLossgd)]*len(cumLossgd))
+            #     #plt.plot(avglossgd,label="Average GD Loss")
+            #     #plt.plot([cumLossls[-1]/len(cumLossls)]*len(cumLossls), label="Average Filter Loss")
+            #     # plt.title("CumLoss Ratio:"+str(min(cumLossgd[-1],cumLossls[-1])/max(cumLossgd[-1],cumLossls[-1])))
+            #     plt.legend()
+            #     figname="g"+str(paramlist[0])+"_nmin"+str(paramlist[1])+"_al"+str(paramlist[2])+"_thr"+str(paramlist[3])\
+            #             + "_lr"+str(paramlist[4])+".png"
+            #     plt.savefig(figname)
+            #     #plt.show()
+            #     f.clear()
 
+        avglossgd = sum(cumLossgd)/len(cumLossgd)
+        return [cumLossgd, avglossgd, fimtgd]
+
+def traverse_tree(root):
+    global file_writer
+    global leaf_count
+
+    isLeaf = root.isLeaf
+    if isLeaf:
+        # print('isLeaf: ', isLeaf)
+        # print(root.model)
+        file_writer.write('linear model coefficients on leaf: ' + str(root.model.w) + '\n')
+        file_writer.write('\n')
+        leaf_count = leaf_count + 1
+    else:
+        file_writer.write('splitting feature index (key_dim): ' + str(root.key_dim) + '\n')
+        file_writer.write('splitting value (key): ' + str(root.key) + '\n')
+        file_writer.write('\n')
+        
+        if root.left is not None:
+            file_writer.write('has left child:\n')
+            traverse_tree(root.left)
+        
+        if root.right is not None:
+            file_writer.write('has right child:\n')
+            traverse_tree(root.right)
+    
+def print_tree(tree, average_loss):
+    print('printing tree...')
+    timestamp = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+    tree_file_name = dir_path + '/tree_' + training_file_name + '_'+ str(timestamp) + '.txt'
+
+    global file_writer
+    file_writer = open(tree_file_name,'w')
+    
+    file_writer.write('average_loss: ' + str(average_loss) + '\n')
+    file_writer.write('\n')
+
+    global leaf_count
+    leaf_count = 0
+
+    root = tree.root
+    traverse_tree(root)
+
+    file_writer.write('leaf_count: ' + str(leaf_count) + '\n')
+    file_writer.close()
+    print('Tree printed in file: ', tree_file_name)
+        
 if __name__ == '__main__':
-    # global result_list
+    global training_file_name
+    training_file_name = 'KielClean.csv'
+    
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    training_data = get_data()
 
-    numberoftests =  1
-    # result_list = [None]*numberoftests
-    paramlist = [2.0, 10, 0.001, 50, 0.75, 5]
-    results = Kiel_Test(paramlist,False,None)
+    # training_data_length = 3000
+    # training_data_length = 100000
+    training_data_length = len(training_data)
 
-    print(results)
+    paramlist = [0.25, 10, 0.001, 10, 0.005, 2]
+    results = Kiel_Test(paramlist,False)
+
+    average_loss = results[1]
+    
+    tree = results[-1]
+    print('tree: ', tree)
+
+    print_tree(tree, average_loss)
