@@ -154,12 +154,12 @@ if __name__ == '__main__':
     # training_data_length = 100000
     
     # [gamma, n_min, alpha, threshold, learn]
-    # :param gamma:       hoefding-bound value
+    # :param gamma/delta:       hoefding-bound value
     # :param n_min:       minimum intervall for split and alt-tree replacement
     # :param alpha:       used for change detection
     # :param threshold:   threshold for change detection
     # :param learn:   learning rate
-    paramlist = [0.25, 10, 0.005, 50, 0.005]
+    paramlist = [0.01, 200, 0.005, 50, 0.01]
 
     results = build_tree(paramlist)
 
