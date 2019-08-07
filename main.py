@@ -117,7 +117,7 @@ def traverse_tree(root):
             file_writer.write('has right child:\n')
             traverse_tree(root.right)
     
-def print_tree(tree, average_loss):
+def print_tree(tree, average_loss, paramlist):
     print('printing tree...')
     current_directory = os.path.dirname(os.path.realpath(__file__))
     timestamp = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
@@ -125,6 +125,9 @@ def print_tree(tree, average_loss):
 
     global file_writer
     file_writer = open(tree_file_name,'w')
+
+    file_writer.write('parameters: ' + str(paramlist) + '\n')
+    file_writer.write('\n')
     
     file_writer.write('average_loss: ' + str(average_loss) + '\n')
     file_writer.write('\n')
@@ -168,4 +171,4 @@ if __name__ == '__main__':
     tree = results[-1]
     print('tree: ', tree)
 
-    print_tree(tree, average_loss)
+    print_tree(tree, average_loss, paramlist)
