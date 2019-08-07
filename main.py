@@ -9,7 +9,7 @@ import datetime
 import os
 
 import sys
-sys.setrecursionlimit(100000)
+sys.setrecursionlimit(200000)
 
 def parse_training_data():
     print("setting up data...")
@@ -159,7 +159,7 @@ if __name__ == '__main__':
     # :param alpha:       used for change detection
     # :param threshold:   threshold for change detection
     # :param learn:   learning rate
-    paramlist = [0.25, 10, 0.001, 10, 0.001]
+    paramlist = [0.25, 10, 0.005, 50, 0.005]
 
     results = build_tree(paramlist)
 
